@@ -4,13 +4,7 @@ Created on Mon Jan 25 17:40:43 2021
 
 @author: arnau
 """
-
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jan 25 17:39:28 2021
-
-@author: arnau
-"""
+from datetime import date
 
 class Tournament:
     """ 
@@ -23,9 +17,27 @@ class Tournament:
     time control (bullet, blitz or quick play), description.
     
     """
-    def __init__(self, name, players_lst):
+    def __init__(self, name, uid):
         self.name = name
-        self.players_lst = players_lst
+        self.players_lst = []
+        self.creation_date = date.today()
+        self.uid = uid
     
+    def add_players(self, player):
+        if len(self.players_lst) < 8:
+            self.players_lst.append(player)
+        else:
+            print("there is already 8 players for this tournament")
+    
+    def start_game(self):
+        if len(self.players_lst) == 8:
+            return True
+        else:
+            return False
+    
+    def serialized(self):
+        return self.__dict__
+        
     def player_duo(self):
         pass
+    

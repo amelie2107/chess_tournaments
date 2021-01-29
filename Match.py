@@ -5,7 +5,7 @@ Created on Mon Jan 25 17:39:28 2021
 @author: arnau
 """
 
-class Matchs:
+class Match:
 
     """
     This class represent a match between two players
@@ -20,5 +20,8 @@ class Matchs:
         self.player2 = players2
     
   
-    
+    def show_winner(self, winner_name):
+        print("")
+        print("Congratulation {} !".format(winner_name))
+
 

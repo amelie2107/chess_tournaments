@@ -4,33 +4,38 @@ Created on Tue Jan 26 11:29:13 2021
 
 @author: arnau
 """
+from math import ceil, floor
+import pandas
 
-class View:
+
+def show_menu(menu_list, menu_name):
     
-    def __init__(self):
-        pass
+    print('\n{} {} {}'.format("*"*floor((57-len(menu_name))/2), menu_name, "*"*ceil((57-len(menu_name))/2)))
+    print('|{}|'.format(" "*57))
+    for idx,elt in enumerate(menu_list):
+        print('| {} - {}{}|'.format(idx, elt, " "*(60-len(elt)-len(str(idx))-7)))
+    print('|{}|'.format(" "*57))
+    print('***********************************************************')
     
-    def prompt_for_new_player(self):
-        new_player = input("Type the name of the player : ")
-            if new_player = "":
-                return None
-            return new_player
-        
-    def show_player_and_game(self, player_name, play_game):
-        print("[{}]".format(player_name))
-        print("[{}]".format(player_game))
-        
-    def show_winner(self, winner_name):
-        print("")
-        print("Congratulation {} !".format(winner_name))
-        
-    def prompt_for_new_game(self):
-        print("")
-        while True:
-            prompt = input("play again (y/n)?")
-            if prompt.lower() == 'y'
-                return True
-            else:
-                return False
-        
-        
+def show_all_players_list(player_database):
+    #transform the database in table
+    if len(player_database) == 0:
+        print("There is no players in the chess data base")
+    else:
+        print(pandas.DataFrame.from_dict(player_database))
+
+def player_tournament(tournament_name, order_by)  :
+    print("we will show you all players in a particular tournament here")
+
+def tournament_result(tournament_selection):
+    print("here we will show you tournament results")
+
+def tournament_state(tournament_selection):
+    print("here we will show you tournament state")
+
+def round_state(round_selection):
+    print("here we will show you round state")
+    
+ 
+def show_sth_list(sth_to_show, progression_to_show):
+    print("we will show you what you want with the progression asked")
