@@ -15,11 +15,22 @@ class Match:
     The loser has 0 point
     If it's a draw match the score is 0.5 for each player
     """
-    def __init__(self, player1, players2):
+    def __init__(self, name, player1, player2, tournament_uid, round_uid, uid):
+        self.name = name
         self.player1 = player1
-        self.player2 = players2
-    
+        self.player2 = player2
+        self.score = []
+        self.tournament_uid = tournament_uid
+        self.round_uid = round_uid
+        self.match_uid = uid
+        self.status = 'in progress'
   
+    def update_score(self):
+        self.status = 'done'
+
+    def serialized(self):
+        return self.__dict__
+ 
     def show_winner(self, winner_name):
         print("")
         print("Congratulation {} !".format(winner_name))

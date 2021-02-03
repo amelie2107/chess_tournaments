@@ -8,14 +8,14 @@ from math import ceil, floor
 import pandas
 
 
-def show_menu(menu_list, menu_name):
-    
-    print('\n{} {} {}'.format("*"*floor((57-len(menu_name))/2), menu_name, "*"*ceil((57-len(menu_name))/2)))
-    print('|{}|'.format(" "*57))
-    for idx,elt in enumerate(menu_list):
-        print('| {} - {}{}|'.format(idx, elt, " "*(60-len(elt)-len(str(idx))-7)))
-    print('|{}|'.format(" "*57))
-    print('***********************************************************')
+def show_menu(menu_list, menu_name, display = True):
+    if display:
+        print('\n{} {} {}'.format("*"*floor((57-len(menu_name))/2), menu_name, "*"*ceil((57-len(menu_name))/2)))
+        print('|{}|'.format(" "*57))
+        for idx,elt in enumerate(menu_list):
+            print('| {} - {}{}|'.format(idx, elt, " "*(60-len(elt)-len(str(idx))-7)))
+        print('|{}|'.format(" "*57))
+        print('***********************************************************')
     
 def show_all_players_list(player_database):
     #transform the database in table
@@ -36,6 +36,15 @@ def tournament_state(tournament_selection):
 def round_state(round_selection):
     print("here we will show you round state")
     
- 
-def show_sth_list(sth_to_show, progression_to_show):
-    print("we will show you what you want with the progression asked")
+def show_match_selection(match_selection, players_database, tournaments_database, rounds_database, matchs_database):
+    pass
+
+def show_tournament_selection(match_selection, players_database, tournaments_database, rounds_database, matchs_database):
+    pass
+
+def show_player_selection(match_selection, players_database, tournaments_database, rounds_database, matchs_database):
+    pass
+
+    
+def show_sth_list(database):
+    print(pandas.DataFrame.from_dict(database))
