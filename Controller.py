@@ -15,7 +15,7 @@ import Round
 NEW_OBJECT = ["add new player", "create tournament"]
 SHOW_PLAYERS = ["show all players list", "show players list of a tournament"]
 SHOW_TRM = ["show tournaments list", "show round list", "show match list"]
-LAUNCH_TRM = ["launch tournament", "launch round"]
+LAUNCH_TRM = ["launch/continue tournament"]
 UPDATE_OBJECT = ["input match result", "update player ranking"]
 SHOW_REPORT = ["show tournament's results"]
 MENU_LIST = NEW_OBJECT + SHOW_PLAYERS + SHOW_TRM + LAUNCH_TRM + UPDATE_OBJECT + SHOW_REPORT
@@ -75,8 +75,7 @@ def menu_new_tournament(players_database, tournaments_database):
             uid_used.append(player_selection)
             #A definir soit on ne met que les uid soit les players!!!
             new_player_in_tournament = player_selection
-            #new_player_in_tournament = Model.search_in_database(players_database,'uid', int(player_selection))
-        new_one.add_players(new_player_in_tournament[0]) 
+        new_one.add_players(new_player_in_tournament) 
     Model.insert_tournament_in_database(tournaments_database, new_one.serialized())
 
 #2
@@ -122,32 +121,22 @@ def menu_launch_tournament(players_database, tournaments_database, rounds_databa
     Model.update_row_in_database(tournaments_database, tournament_object, 'tournament_uid',tournament_object.tournament_uid)
 
 #8
-def menu_launch_round(players_database, tournaments_database, rounds_database, matchs_database):
-    menu_show_round_list(tournaments_database, rounds_database)    
-    round_selection = database_return_selection('round')
-    round_selected = Model.search_in_database(rounds_database, 'round_uid', round_selection)
-    round_object = Model.deserialized_round(round_selected)[0]
-    object_match_lst = round_object.define_match(players_database, matchs_database)
-    import pdb ; pdb.set_trace()
-    for idx, match in enumerate(object_match_lst):
-        player1 = Model.search_in_database(players_database, 'uid', match.player1)
-        player2 = Model.search_in_database(players_database, 'uid', match.player2)
-        print("the match {} : {} {} against {} {}".format(idx+1, player1['first_name'], player1['last_name'], player2['first_name'], player2['last_name']))
-#9
 def menu_input_match_result(players_database, tournaments_database, rounds_database, matchs_database):
     menu_show_match_list(tournaments_database, rounds_database, matchs_database)
-    
     #update the scores of the match selected
     match_selection = database_return_selection('match')
-    View.show_sth_list(match_selection)
-    #Model.search_in_database(players_database,'uid',1)[0]['first_name'] + Model.search_in_database(players_database,'uid',1)[0]['last_name']
-    #update_match(tournament_name, round_name, match_name, player1 = (player1,uid1), player2 = (player2,uid2)):
-    #View.show_match_selection(match_selection, players_database, tournaments_database, rounds_database, matchs_database)
-    #update_match(f"Where tournament = {tournament_lst[tournament_selection]} and round = {round_lst[round_selection]} and match = {match_lst[match_selection]}")
-    update_match()
-    Model.update_match_score(matchs_database)
+    match_selected = Model.search_in_database(matchs_database, 'match_uid', match_selection)
+    match_object = Model.deserialized_match(match_selected)[0]
+    #round_object.(players_database, matchs_database)
+    match_details_dict = Model.match_details(match_object, players_database, tournaments_database, rounds_database, matchs_database)
+    match_score = input_match_scores(match_details_dict)
+    match_object.update_score(match_score)
+    Model.update_row_in_database(matchs_database, match_object, 'match_uid',match_object.match_uid)
+    Model.is_the_round_finished(match_object.round_uid, tournaments_database, rounds_database, matchs_database)
+    Model.is_the_tournament_finised(match_object.tournament_uid, tournaments_database, rounds_database)
     
-#10
+    
+#9
 def menu_update_player_ranking(PLAYER_LIST_MENU, players_database):
     #show the players list to select one
     menu_show_all_players_list(PLAYER_LIST_MENU, players_database)
@@ -156,7 +145,7 @@ def menu_update_player_ranking(PLAYER_LIST_MENU, players_database):
     new_rank_selection = input("Please, insert the new ranking of this player : ")
     Model.update_player_ranking(players_database, player_selection, new_rank_selection)
 
-#11
+#10
 def menu_show_tournaments_results():
     View.show_sth_list('tournament', 'all')
     tournament_selection = database_return_selection('tournament')
@@ -179,24 +168,12 @@ def new_tournament(tournaments_database):
     unique_id = Model.generate_uniqueid(tournaments_database, 'tournament_uid')
     return Tournament.Tournament(tournament_name, int(unique_id))
     
-def new_round():
-    pass
-
-def new_match():
-    print("\n *********Add information about the new player**************")
-    first_name = input("First name : ")
-    last_name = input("Last name : ")
-    birth_date = input("Date of birth : ")
-    gender = input("Gender (F/M) : ")
-    ranking = 0
-    return Player.Player(first_name, last_name, birth_date, gender, ranking)
-
-def update_match(tournament_name, round_name, match_name, player1, player2):
-    print("you have selected the tournament : {}, the round : {} and the match : {}".format(tournament_name, round_name, match_name))
-    print("Currently {} is playing against {}".format(player1[0], player2[0]))
-    player1_score = input('Enter the score of {} : '.format(player1[0]))
-    player2_score = input('Enter the score of {} : '.format(player2[0]))
-    return [(player1[1],player1_score),(player2[1],player2_score)]
+def input_match_scores(match_dict):
+    print("you have selected the tournament : {}, the round : {} and the match : {}".format(match_dict['tournament'], match_dict['round'], match_dict['match']))
+    print("Currently {} is playing against {}".format(match_dict['player1'], match_dict['player2']))
+    player1_score = input('Enter the score of {} : '.format(match_dict['player1']))
+    player2_score = input('Enter the score of {} : '.format(match_dict['player2']))
+    return [(match_dict['player1_uid'],player1_score),(match_dict['player2_uid'],player2_score)]
 
 def update_player_rank(arguments):
     print("here we will input the rank of the player")

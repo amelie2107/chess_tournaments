@@ -45,6 +45,11 @@ def show_tournament_selection(match_selection, players_database, tournaments_dat
 def show_player_selection(match_selection, players_database, tournaments_database, rounds_database, matchs_database):
     pass
 
+def match_details(object_match_list, players_database):
+    for elt in object_match_list:
+        print(elt.player1, elt.player2)
+    pass
+
     
 def show_sth_list(database):
     print(pandas.DataFrame.from_dict(database))

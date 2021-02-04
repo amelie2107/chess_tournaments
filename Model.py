@@ -12,7 +12,6 @@ import Controller
 import json
 import os
 from tinydb import TinyDB, Query, where
-#    import pdb; pdb.set_trace()
 
 
 def database_load(file_name, name , clear = False):
@@ -71,6 +70,15 @@ def search_uidlist_in_database(database, uid_list, uid_name = 'uid'):
 def field_in_database(dict_list, field_key):
     return {each_dict[field_key] for each_dict in dict_list}
 
+def match_details(object_match_selected, players_database, tournaments_database, rounds_database, matchs_database):
+    player1 = search_in_database(players_database, 'uid', object_match_selected.player1)[0]
+    player1 = "{} {}".format(player1['first_name'], player1['last_name'])
+    player2 = search_in_database(players_database, 'uid', object_match_selected.player2)[0]
+    player2 = "{} {}".format(player2['first_name'], player2['last_name'])
+    tournament_name = search_in_database(tournaments_database, 'tournament_uid', object_match_selected.tournament_uid)[0]
+    round_name = search_in_database(rounds_database, 'round_uid', object_match_selected.round_uid)[0]
+    match_name = object_match_selected.name
+    return {'player1' : player1, 'player1_uid' : object_match_selected.player1, 'player2' : player2, 'player2_uid' : object_match_selected.player2,'tournament' : tournament_name['name'], 'round' : round_name['name'], 'match' : match_name }
 
 def update_player_ranking(players_database, player_selection, new_rank_selection):
     try:
@@ -84,7 +92,6 @@ def update_player_ranking(players_database, player_selection, new_rank_selection
 def update_row_in_database(database, object_updated, uid_field, uid_value):
     object_updated_dict = object_updated.serialized()
     for key in object_updated_dict:
-        print("update field {} = {}".format(key, object_updated_dict[key]))
         database.update({key : object_updated_dict[key]}, where(uid_field) == uid_value)
 
 def insert_tournament_in_database(database, tournament_serialized, multiple_tournament = False):
@@ -99,6 +106,59 @@ def insert_object_in_database(database, object_serialized, multiple_object = Fal
     else:
         return database.insert(object_serialized)
 
+def is_the_round_finished(round_uid, tournaments_database, rounds_database, matchs_database):
+    round_selected = search_in_database(rounds_database, 'round_uid', round_uid)
+    round_object = deserialized_round(round_selected)[0]
+    match_list = search_in_database(matchs_database, 'round_uid', round_uid)
+    round_finished = True
+    round_started = False
+    match_score_list = []
+    for elt in match_list:
+        match_score_list += elt['score']
+        if elt['status'] != 'done':
+            round_finished = False
+        if elt['status'] == 'done' and round_object.status == 'new':
+            round_started = True
+            
+    if round_started:
+        round_object.update_status(match_score_list, 'in progress')
+        update_row_in_database(rounds_database, round_object, 'round_uid', round_uid)
+        update_tournament_score(round_object.tournament_uid, round_object.score, tournaments_database)
+         
+    
+    if round_finished:
+        round_object.update_status(match_score_list)
+        update_row_in_database(rounds_database, round_object, 'round_uid', round_uid)
+        update_tournament_score(round_object.tournament_uid, round_object.score, tournaments_database)
+    
+    return round_finished
+    
+def is_the_tournament_finised(tournament_uid, tournaments_database, round_database):
+    tournament_selected = search_in_database(tournaments_database, 'tournament_uid', tournament_uid)
+    tournament_object = deserialized_tournament(tournament_selected)[0]
+    round_list = search_in_database(tournaments_database, 'tournament_uid', tournament_uid)
+    tournament_finised = True
+    
+    if len(round_list) == tournament_object.nb_round:
+        for elt in round_list:
+            if elt['status'] != 'done':
+                tournament_finised = False
+    else:
+        tournament_finised = False
+        
+    if tournament_finised:
+        tournament_object.update_status()
+        update_row_in_database(tournaments_database, tournament_object, 'tournament_uid', tournament_uid)
+    
+    return tournament_finised
+
+def update_tournament_score(tournament_uid, round_score, tournaments_database):
+    tournament_selected = search_in_database(tournaments_database, 'tournament_uid', tournament_uid)
+    tournament_object = deserialized_tournament(tournament_selected)[0]
+    tournament_object.update_score(round_score)
+    update_row_in_database(tournaments_database, tournament_object, 'tournament_uid', tournament_uid)
+    
+
 def deserialized_player(players_list):
     deserialized_lst = []
     for player in players_list:        
@@ -111,7 +171,9 @@ def deserialized_tournament(tournament_list):
     for tournament in tournament_list:
         deserialized_tournament = Tournament.Tournament(tournament['name'], tournament['tournament_uid'])
         deserialized_tournament.players_uid_lst = tournament['players_uid_lst']    
+        deserialized_tournament.score = tournament['score']
         deserialized_tournament.creation_date = tournament['creation_date']
+        deserialized_tournament.end_date = tournament['end_date']        
         deserialized_tournament.status = tournament['status']
         deserialized_tournament.round_lst = tournament['round_lst']
         deserialized_tournament.nb_round = tournament['nb_round']
@@ -137,29 +199,20 @@ def deserialized_round(round_list):
 def deserialized_match(match_list):
     deserialized_lst = []
     for match in match_list:
-        deserialized_match = Match.Match(match['name'], match['player1'], match['player2'], match['tournament_uid'], match['round_uid'], match['uid'])
+        deserialized_match = Match.Match(match['name'], match['player1'], match['player2'], match['tournament_uid'], match['round_uid'], match['match_uid'])
         deserialized_match.score = match['score']
         deserialized_match.status = match['status']
         deserialized_lst.append(deserialized_match)
     return deserialized_lst
-
-def return_sth_list(sth_to_return, progression, sth_else):
-    print("return a list of sth (round, tournament, match)")
-    
-def return_player_list():
-    print("here we will return a list of all players")
-
-def update_match_score(match_name, player_name):
-    print("here we will update the player name")
-
-def update_player_rank(player_identification, new_rank):
-    print("here we will update the rank of a player")
 
 def menu_function(menu_value, under_menu_value, players_database, tournaments_database, rounds_database, matchs_database):
     
     if menu_value == "add new player":
         Controller.menu_new_player(players_database)
     
+    if menu_value == "create tournament":
+        Controller.menu_new_tournament(players_database, tournaments_database)
+
     if menu_value == "show all players list": #, "show players list of a tournament"):
         Controller.menu_show_all_players_list(under_menu_value, players_database)
             
@@ -175,21 +228,15 @@ def menu_function(menu_value, under_menu_value, players_database, tournaments_da
     if menu_value == "show match list":
         Controller.menu_show_match_list(tournaments_database, rounds_database, matchs_database)
 
-    if menu_value == "show tournament's results":
-        Controller.menu_show_tournaments_results()
-        
-    if menu_value == "create tournament":
-        Controller.menu_new_tournament(players_database, tournaments_database)
-
-    if menu_value == "launch tournament":
-        updated_tournament = Controller.menu_launch_tournament(players_database, tournaments_database, rounds_database, matchs_database)
-        update_row_in_database(tournaments_database, updated_tournament, 'tournament_uid',updated_tournament.tournament_uid)
-        
-    if menu_value == "launch round":   
-        Controller.menu_launch_round(players_database, tournaments_database, rounds_database, matchs_database)
-                
+    if menu_value == "launch/continue tournament":
+        Controller.menu_launch_tournament(players_database, tournaments_database, rounds_database, matchs_database)
+                        
     if menu_value == "input match result":
         Controller.menu_input_match_result(players_database, tournaments_database, rounds_database, matchs_database)
     
     if menu_value == "update player ranking":
         Controller.menu_update_player_ranking(under_menu_value, players_database)
+
+    if menu_value == "show tournament's results":
+        Controller.menu_show_tournaments_results()
+        

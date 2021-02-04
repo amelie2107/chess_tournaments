@@ -26,10 +26,14 @@ class Tournament:
         self.players_uid_lst = []
         self.score = []
         self.creation_date = strftime("%d-%m-%Y",localtime())
+        self.end_date = str()
         self.status = 'in progress'
         self.round_lst = []
         self.nb_round = nb_round
     
+    def end_tournament(self):
+        self.end_date = strftime("%d-%m-%Y",localtime())
+
     def add_players(self, player):
         if len(self.players_uid_lst) < 8:
             self.players_uid_lst.append(int(player))
@@ -42,21 +46,62 @@ class Tournament:
             return True
         else:
             return False
-        
-    def start_round(self, players_database, rounds_database, matchs_database):
-        round_uid = Model.generate_uniqueid(rounds_database, 'round_uid')
-        new_round = Round.Round(f'Round{len(self.round_lst)+1}', self.players_uid_lst, self.tournament_uid, round_uid)
-        self.round_lst.append(new_round.round_uid)
-        if len(self.round_lst) == 0:
-            new_round.first_round(players_database, matchs_database)
-        if len(self.round_lst) < self.nb_round:
-            new_round.others_rounds(players_database, matchs_database)
-        Model.insert_object_in_database(rounds_database, new_round.serialized())
 
-        print("** the tournament : {} is {} **".format(self.name, self.status))
-        print("****** the Round{} is {} ******".format(len(self.round_lst), new_round.status))
+    def is_first_round(self):
+        if len(self.round_lst) == 0:
+            return True
+        else:
+            return False
+
+    def previous_round_finished(self, rounds_database):
+        is_finished = False
+        if len(self.round_lst) != 0:
+            last_round = self.round_lst[-1]
+            round_selected = Model.search_in_database(rounds_database, 'round_uid', last_round)[0]
+            if round_selected['status'] == 'done':
+                is_finished = True
+        else:
+            is_finished = True
+        return is_finished
+
+    def start_round(self, players_database, rounds_database, matchs_database):
+        new_round = None
+        if self.status != 'done':
+            if self.previous_round_finished(rounds_database):
+                if self.start_game():
+
+                    round_uid = Model.generate_uniqueid(rounds_database, 'round_uid')
+                    new_round = Round.Round(f'Round{len(self.round_lst)+1}', self.players_uid_lst, self.tournament_uid, round_uid)
+                    if self.is_first_round():
+                        new_round.first_round(players_database, matchs_database)
+                    else: 
+                        new_round.others_rounds(players_database, matchs_database, self.score)                   
+                    self.round_lst.append(new_round.round_uid)
+                    Model.insert_object_in_database(rounds_database, new_round.serialized())
+                    print("\n A new round, {}, have been created".format(new_round.name))
+                else:
+                    print("\n Players are missing to start this tournament.")
+            else:
+                print("\n A round of this tournament is already in progress.")
+                print("You must finish the previous round to launch a new round.")
+        else:
+            print("\n The tournament is already finished since {}".format(self.end_date))
         return new_round
-    
+        
+    def update_status(self, updated_value = 'done'):
+        self.status = updated_value
+        if updated_value == 'done':
+            self.end_tournament()
+
+    def update_score(self, round_score_values):
+        if len(self.score) == 0:
+            self.score = round_score_values
+        else:
+            for round_score in round_score_values:
+                for idx, tournament_score in enumerate(self.score):
+                    if tournament_score[0] == round_score[0]:
+                       self.score[idx][1] += round_score[1]
+
     def serialized(self):
         return self.__dict__
         

@@ -25,9 +25,28 @@ class Match:
         self.match_uid = uid
         self.status = 'in progress'
   
-    def update_score(self):
-        self.status = 'done'
-
+    def update_score(self, scores):
+        if scores[0][0] == self.player1:
+            score1 = scores[0][1]
+            score2 = scores[1][1]
+        if scores[0][0] == self.player2:
+            score1 = scores[1][1]
+            score2 = scores[0][1]
+             
+        confirmed = 'y'
+        if score1 + score2 == 0:
+            confirmed = input("are you sure the score for both players is zero (y/n)?")
+        
+        if confirmed.lower() == 'y':
+            if score1 > score2:
+                score1 = 1; score2 = 0
+            if score1 < score2:
+                score1 = 0; score2 = 1
+            if score1 == score2:
+                score1 = score2 = 0.5
+            self.score = [(self.player1,score1),(self.player2,score2)]
+            self.status = 'done'
+ 
     def serialized(self):
         return self.__dict__
  

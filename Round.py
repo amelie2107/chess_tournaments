@@ -34,20 +34,7 @@ class Round:
     def end_round(self):
         self.end_date = strftime("%d-%m-%Y",localtime())
         self.end_hour = strftime("%H:%M:%S",localtime())
-    
-    def define_match(self, players_database, matchs_database):
-#        import pdb ; pdb.set_trace()
-        match_lst = []
-        if int(self.name[-1]) == 1:
-            self.start_round()
-            match_lst = self.first_round(players_database, matchs_database)
-        elif int(self.name[-1]) == 4:
-            self.end_round()
-        else:
-            #check si score entré pour tous les matchs
-            match_lst = self.others_rounds()
-        return match_lst
-    
+                
     def first_round(self, players_database, matchs_database):
         match_list = []
         players_list_sorted = Model.search_uidlist_in_database(players_database, self.players_lst)
@@ -59,12 +46,43 @@ class Round:
             self.matchs_lst.append(object_match.match_uid)
             Model.insert_object_in_database(matchs_database, object_match.serialized())
             match_list.append(object_match)
-
+            
         return match_list    
 
-    def others_rounds(self, players_database, matchs_database):
-        pass
-    
+    def others_rounds(self, players_database, matchs_database, current_tournament_score):
+        players_level = self.players_status(players_database, current_tournament_score)
+        match_list = []
+        idx_match = 1
+        for idx in range(0, len(players_level), 2):
+            match_uid = Model.generate_uniqueid(matchs_database, 'match_uid')
+            object_match = Match.Match(f'match{idx_match}', players_level[idx]['uid'],players_level[idx+1]['uid'],self.tournament_uid, self.round_uid, match_uid)         
+            
+            self.matchs_lst.append(object_match.match_uid)
+            Model.insert_object_in_database(matchs_database, object_match.serialized())
+            match_list.append(object_match)
+            idx_match += 1
+        return match_list
+            
+    def players_status(self, players_database, tournament_score):
+        players_status = []
+        for player in self.players_lst:
+            player_information = Model.search_in_database(players_database, 'uid', player)[0]
+            player_name = player_information['first_name']+" "+player_information['last_name']
+            player_uid = player
+            player_ranking = player_information['ranking']
+            for players_score in tournament_score:
+                if players_score[0] == player_uid:
+                    player_score = players_score[1]
+            players_status.append({'name': player_name, 'uid': player_uid, 'score': player_score, 'ranking': player_ranking})
+        return sorted(players_status, key = lambda x: (x['score'], x['ranking']))
+            
+                    
+    def update_status(self, round_score, update_value = 'done'):
+        self.status = update_value
+        if update_value == 'done':
+            self.score = round_score
+            self.end_round()
+        
     def serialized(self):
         return self.__dict__
 
