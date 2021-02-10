@@ -50,8 +50,3 @@ class Match:
     def serialized(self):
         return self.__dict__
  
-    def show_winner(self, winner_name):
-        print("")
-        print("Congratulation {} !".format(winner_name))
-
-

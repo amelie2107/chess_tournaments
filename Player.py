@@ -5,8 +5,7 @@ Spyder Editor
 This is a temporary script file.
 """
 
-import json
-import slugify
+from slugify import slugify
 
 class Player:
     """
@@ -38,7 +37,7 @@ class Player:
 
     
     def serialized(self):
-        self.birth_date  = slugify.slugify(self.birth_date)
+        self.birth_date  = slugify(self.birth_date)
         return self.__dict__
     
     
