@@ -34,32 +34,32 @@ You can then lauch the python file using the following line :<br />
 
 The programm is running.<br />
 The menu appear :<br />
->************************** menu ***************************
->|                                                         |
->| 0 - add new player                                      |
->| 1 - create tournament                                   |
->| 2 - show all players list                               |
->| 3 - show players list of a tournament                   |
->| 4 - show tournaments list                               |
->| 5 - show round list                                     |
->| 6 - show match list                                     |
->| 7 - launch/continue tournament                          |
->| 8 - input match result                                  |
->| 9 - update player ranking                               |
->| 10 - show tournament's results                          |
->| 11 - exit                                               |
->|                                                         |
->***********************************************************
->please enter your choice (index) : 
+>************************** menu ***************************<br />
+>|<br />
+>| 0 - add new player<br />
+>| 1 - create tournament<br />
+>| 2 - show all players list<br />
+>| 3 - show players list of a tournament<br />
+>| 4 - show tournaments list<br />
+>| 5 - show round list<br />
+>| 6 - show match list<br />
+>| 7 - launch/continue tournament<br />
+>| 8 - input match result<br />
+>| 9 - update player ranking<br />
+>| 10 - show tournament's results<br />
+>| 11 - exit<br />
+>|<br />
+>***********************************************************<br />
+>please enter your choice (index) : <br />
 
 You can choose what you plan to do, the program will lead you to run a tournament.
 
 ### Flake8
 
-You can check if the code observe the PEP8 using Flake8 with a maximum of 119 caracteres by line.
-From you consol, Windows Powershell in my case, you can use the following code :
-> python -m pip install flake8
-> flake8 --format=html --htmldir=flake8-rapport --max-line-length=119
+You can check if the code observe the PEP8 using Flake8 with a maximum of 119 caracteres by line.<br />
+From you consol, Windows Powershell in my case, you can use the following code :<br />
+> python -m pip install flake8<br />
+> flake8 --format=html --htmldir=flake8-rapport --max-line-length=119<br />
 
 ### Deployment
 
