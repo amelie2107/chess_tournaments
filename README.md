@@ -35,7 +35,7 @@ You can then lauch the python file using the following line :<br />
 The programm is running.<br />
 The menu appear :<br />
 >************************** menu ***************************<br />
->|                                                         |<br />
+>|<pre><pre><pre><pre><pre><pre><pre><pre><pre><pre><pre>|<br />
 >| 0 - add new player                                      |<br />
 >| 1 - create tournament                                   |<br />
 >| 2 - show all players list                               |<br />
