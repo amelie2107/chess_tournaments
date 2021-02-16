@@ -35,20 +35,20 @@ You can then lauch the python file using the following line :<br />
 The programm is running.<br />
 The menu appear :<br />
 >************************** menu ***************************<br />
->|<pre><pre><pre><pre><pre><pre><pre><pre><pre><pre><pre>|<br />
->| 0 - add new player                                      |<br />
->| 1 - create tournament                                   |<br />
->| 2 - show all players list                               |<br />
->| 3 - show players list of a tournament                   |<br />
->| 4 - show tournaments list                               |<br />
->| 5 - show round list                                     |<br />
->| 6 - show match list                                     |<br />
->| 7 - launch/continue tournament                          |<br />
->| 8 - input match result                                  |<br />
->| 9 - update player ranking                               |<br />
->| 10 - show tournament's results                          |<br />
->| 11 - exit                                               |<br />
->|                                                         |<br />
+>|<br />
+>| 0 - add new player<br />
+>| 1 - create tournament<br />
+>| 2 - show all players list<br />
+>| 3 - show players list of a tournament<br />
+>| 4 - show tournaments list<br />
+>| 5 - show round list<br />
+>| 6 - show match list<br />
+>| 7 - launch/continue tournament<br />
+>| 8 - input match result<br />
+>| 9 - update player ranking<br />
+>| 10 - show tournament's results<br />
+>| 11 - exit<br />
+>|<br />
 >***********************************************************<br />
 >please enter your choice (index) : <br />
 
