@@ -416,6 +416,7 @@ def menu_update_player_ranking(player_list_menu, players_database):
     player_object = model.deserialized_player(player_selected)[0]
     view.show_update_player_rank(player_object.first_name, player_object.last_name,
                                  player_object.ranking, new_rank_selection)
+    player_object.ranking = new_rank_selection
     model.update_row_in_database(players_database, player_object, 'uid', player_object.uid)
 
 
